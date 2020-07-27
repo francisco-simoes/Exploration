@@ -72,8 +72,40 @@ for i,ax in zip(range(len(axs)), axs):
     cropped_img = cropped_imgs[i]
     cropped_img.show(ax=ax) 
 
+#Save cropped images for later use.
+cropped_img_path = fsi.Path('Imgs')
+for idx,img in zip(range(len(cropped_imgs)), cropped_imgs):
+    img.save(cropped_img_path/'cropped_img_{}.png'.format(idx))
+
+###Missing: Colour correction and resizing test data as well.
+
+# Data augmentation
+#Will flip, rotate and change lighting. But no zooming.
+tfms = fsi.get_transforms(do_flip=True, flip_vert=True, max_rotate=45., max_zoom=1., max_lighting=0.2, max_warp=0.1, p_affine=0.5, p_lighting=0.5)
+
+#src = ( fsi.ImageList.from_folder(cropped_img_path)
+#       .split_by_rand_pct(0.2)
+#       .label_from_lists([(1, 0) for i in range(16*3)], [(1, 0) for i in range(4*3)]) )
 
 
+gt_crop_df = gt_df.iloc[np.arange(len(gt_df) * 3) // 3]
+gt_crop_df.index = range(len(gt_crop_df))
+print('Ground truth df for cropped images:\n', gt_crop_df)
+
+#src = ( fsi.ImageList.from_df(gt_df, path_sample, suffix='jpg')
+#       .split_by_rand_pct(0.2)
+#       .label_from_lists([(1, 0) for i in range(16*3)], [(1, 0) for i in range(4*3)]) )
+#
+#data = ( src.transform(tfms, size=224)
+#        .databunch(bs=12).normalize(fsi.imagenet_stats) ) #Default batch size of 64 is too big for this small sample size.
+#
+#print('Number of training images in `data`: ', len(data.train_ds))
+#print('Number of validation images in `data`: ', len(data.valid_ds))
+#
+##Visualize the data:
+#data.show_batch(rows=3, figsize=(12,9))
+#
+       
 ###CURRENT
 
 
