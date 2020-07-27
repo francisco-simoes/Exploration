@@ -72,12 +72,15 @@ for i,ax in zip(range(len(axs)), axs):
     cropped_img = cropped_imgs[i]
     cropped_img.show(ax=ax) 
 
+print([img.name for img in imgs])
+
 #Save cropped images for later use.
 cropped_img_path = fsi.Path('Imgs')
 for idx,img in zip(range(len(cropped_imgs)), cropped_imgs):
-    img.save(cropped_img_path/'cropped_img_{}.png'.format(idx))
+    #Will save e.g. the second crop of the second image as ISIC_0000001_2.
+    img.save(cropped_img_path/'{}_{}.png'.format(imgs[int(np.floor(idx/n_crops))].name, idx%n_crops))
 
-###Missing: Colour correction and resizing test data as well.
+###Missing: Colour correction and resizing test data. 
 
 # Data augmentation
 #Will flip, rotate and change lighting. But no zooming.
@@ -89,7 +92,10 @@ tfms = fsi.get_transforms(do_flip=True, flip_vert=True, max_rotate=45., max_zoom
 
 
 gt_crop_df = gt_df.iloc[np.arange(len(gt_df) * 3) // 3]
-gt_crop_df.index = range(len(gt_crop_df))
+gt_crop_df.index = range(len(gt_crop_df)) #Reset index
+for i in range(n_crops):
+    #Append _i to the ith cropped image.
+    gt_crop_df.iloc[i::n_crops]['image'] = gt_crop_df.iloc[i::n_crops]['image'] + '_{}'.format(i) 
 print('Ground truth df for cropped images:\n', gt_crop_df)
 
 #src = ( fsi.ImageList.from_df(gt_df, path_sample, suffix='jpg')
