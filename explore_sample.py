@@ -77,8 +77,9 @@ print([img.name for img in imgs])
 #Save cropped images for later use.
 cropped_img_path = fsi.Path('Imgs')
 for idx,img in zip(range(len(cropped_imgs)), cropped_imgs):
-    #Will save e.g. the second crop of the second image as ISIC_0000001_2.
-    img.save(cropped_img_path/'{}_{}.png'.format(imgs[int(np.floor(idx/n_crops))].name, idx%n_crops))
+    #Will save e.g. the second crop of the second image as ISIC_0000001_2.png.
+    img_prename = imgs[int(np.floor(idx/n_crops))].name.replace('.jpg', '')
+    img.save(cropped_img_path/'{}_{}.png'.format(img_prename, idx%n_crops))
 
 ###Missing: Colour correction and resizing test data. 
 
@@ -98,19 +99,19 @@ for i in range(n_crops):
     gt_crop_df.iloc[i::n_crops]['image'] = gt_crop_df.iloc[i::n_crops]['image'] + '_{}'.format(i) 
 print('Ground truth df for cropped images:\n', gt_crop_df)
 
-#src = ( fsi.ImageList.from_df(gt_df, path_sample, suffix='jpg')
-#       .split_by_rand_pct(0.2)
-#       .label_from_lists([(1, 0) for i in range(16*3)], [(1, 0) for i in range(4*3)]) )
-#
-#data = ( src.transform(tfms, size=224)
-#        .databunch(bs=12).normalize(fsi.imagenet_stats) ) #Default batch size of 64 is too big for this small sample size.
-#
-#print('Number of training images in `data`: ', len(data.train_ds))
-#print('Number of validation images in `data`: ', len(data.valid_ds))
-#
-##Visualize the data:
-#data.show_batch(rows=3, figsize=(12,9))
-#
+src = ( fsi.ImageList.from_df(gt_crop_df, cropped_img_path, suffix='.png')
+       .split_by_rand_pct(0.2)
+       .label_from_df() )
+
+data = ( src.transform(tfms, size=224)
+        .databunch(bs=12).normalize(fsi.imagenet_stats) ) #Default batch size of 64 is too big for this small sample size.
+
+print('Number of training images in `data`: ', len(data.train_ds))
+print('Number of validation images in `data`: ', len(data.valid_ds))
+
+#Visualize the data:
+data.show_batch(rows=3, figsize=(12,9))
+
        
 ###CURRENT
 
